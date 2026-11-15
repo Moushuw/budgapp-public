@@ -1,0 +1,33 @@
+# Base de développement locale : PostgreSQL 17 avec pg_trgm et unaccent.
+# Mot de passe de développement seulement, cohérent avec .env.example.
+# Les tests (Vitest, Playwright) créent eux-mêmes leurs schémas `test` et `e2e` dans budgapp_dev.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: budgapp
+      POSTGRES_PASSWORD: budgapp_dev
+      POSTGRES_DB: budgapp_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - budgapp-db:/var/lib/postgresql/data
+    configs:
+      - source: extensions
+        target: /docker-entrypoint-initdb.d/01-extensions.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budgapp -d budgapp_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+# La migration 20260914213000_pg_trgm_unaccent crée aussi ces extensions ;
+# les poser dès l'initialisation garde la base utilisable avant la première migration.
+configs:
+  extensions:
+    content: |
+      CREATE EXTENSION IF NOT EXISTS pg_trgm;
+      CREATE EXTENSION IF NOT EXISTS unaccent;
+
+volumes:
+  budgapp-db:

@@ -1,0 +1,53 @@
+# Dépendances
+node_modules/
+.pnp
+.pnp.*
+
+# Next.js
+.next/
+.next-e2e/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Environnement — jamais commité (CLAUDE.md §2, règle 10)
+.env
+.env.*
+!.env.example
+
+# Bases de données et sauvegardes
+*.db
+*.db-journal
+*.dump
+*.bak
+
+# Tests
+coverage/
+test-results/
+captures-e2e/
+playwright-report/
+blob-report/
+/playwright/.cache/
+
+# Relevés réels de Benjamin — jamais commités (docs/pilotage/gouvernance.md §5)
+donnees-reelles/*
+!donnees-reelles/README.md
+
+# Mode pilote : journal et arrêt
+.pilote/
+.pilote-stop
+
+# Pipeline d'agents (.claude/skills/ship) et worktrees Claude Code
+.pipeline/
+.claude/worktrees/
+.claude/agent-memory/
+.claude/settings.local.json
+
+# Divers
+.DS_Store
+*.log
+npm-debug.log*
+.idea/
+.vscode/*
+!.vscode/extensions.json

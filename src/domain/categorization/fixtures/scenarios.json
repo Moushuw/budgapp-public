@@ -1,0 +1,972 @@
+{
+  "regles": {
+    "r-iga": {
+      "id": "r-iga",
+      "libelle": "Épicerie IGA",
+      "priorite": 10,
+      "actif": true,
+      "conditions": [
+        { "id": "c-iga-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-iga-1", "type": "CATEGORISER", "subcategoryId": "sc-epicerie", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-a": {
+      "id": "r-resto-a",
+      "libelle": "Restaurant (conflit A)",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-a-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTAURANT", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-a-1", "type": "CATEGORISER", "subcategoryId": "sc-restaurant", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-b": {
+      "id": "r-resto-b",
+      "libelle": "Restaurant (conflit B)",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-b-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTAURANT", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-b-1", "type": "CATEGORISER", "subcategoryId": "sc-sorties", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-c": {
+      "id": "r-resto-c",
+      "libelle": "Restaurant (doublon C)",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-c-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTAURANT", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-c-1", "type": "CATEGORISER", "subcategoryId": "sc-restaurant", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-visa": {
+      "id": "r-resto-visa",
+      "libelle": "Gros restaurant sur Visa",
+      "priorite": 8,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-visa-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTAURANT", "valeurFin": null },
+        { "id": "c-resto-visa-2", "champ": "MONTANT", "operateur": "INF", "valeur": "-5000", "valeurFin": null },
+        { "id": "c-resto-visa-3", "champ": "COMPTE", "operateur": "EGALE", "valeur": "cpt-visa", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-visa-1", "type": "CATEGORISER", "subcategoryId": "sc-restaurant", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-amazon": {
+      "id": "r-amazon",
+      "libelle": "Fusion Amazon",
+      "priorite": 3,
+      "actif": true,
+      "conditions": [
+        { "id": "c-amazon-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "AMAZON", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-amazon-1", "type": "RENOMMER_BENEFICIAIRE", "subcategoryId": null, "valeur": "Amazon", "ordre": 0 },
+        { "id": "a-amazon-2", "type": "MARQUER_A_REVOIR", "subcategoryId": null, "valeur": null, "ordre": 1 }
+      ]
+    },
+    "r-etq-auto": {
+      "id": "r-etq-auto",
+      "libelle": "Étiquette Auto",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-etq-auto-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "PETRO", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-etq-auto-1", "type": "ETIQUETER", "subcategoryId": null, "valeur": "tag-auto", "ordre": 0 }
+      ]
+    },
+    "r-etq-recurrent": {
+      "id": "r-etq-recurrent",
+      "libelle": "Étiquette Récurrent",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-etq-recurrent-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "PETRO", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-etq-recurrent-1", "type": "ETIQUETER", "subcategoryId": null, "valeur": "tag-recurrent", "ordre": 0 }
+      ]
+    },
+    "r-inactif": {
+      "id": "r-inactif",
+      "libelle": "Règle désactivée",
+      "priorite": 99,
+      "actif": false,
+      "conditions": [
+        { "id": "c-inactif-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-inactif-1", "type": "CATEGORISER", "subcategoryId": "sc-sorties", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-regex-cassee": {
+      "id": "r-regex-cassee",
+      "libelle": "Regex cassée",
+      "priorite": 7,
+      "actif": true,
+      "conditions": [
+        { "id": "c-regex-cassee-1", "champ": "DESCRIPTION", "operateur": "REGEX", "valeur": "((", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-regex-cassee-1", "type": "CATEGORISER", "subcategoryId": "sc-sorties", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-sans-condition": {
+      "id": "r-sans-condition",
+      "libelle": "Règle sans condition",
+      "priorite": 20,
+      "actif": true,
+      "conditions": [],
+      "actions": [
+        { "id": "a-sans-condition-1", "type": "CATEGORISER", "subcategoryId": "sc-sorties", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-ventiler": {
+      "id": "r-ventiler",
+      "libelle": "Ventilation à venir",
+      "priorite": 6,
+      "actif": true,
+      "conditions": [
+        { "id": "c-ventiler-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-ventiler-1", "type": "VENTILER", "subcategoryId": null, "valeur": null, "ordre": 0 },
+        { "id": "a-ventiler-2", "type": "ETIQUETER", "subcategoryId": null, "valeur": "tag-recurrent", "ordre": 1 }
+      ]
+    },
+    "r-ventiler-iga": {
+      "id": "r-ventiler-iga",
+      "libelle": "Ventilation IGA",
+      "priorite": 10,
+      "actif": true,
+      "conditions": [
+        { "id": "c-ventiler-iga-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-ventiler-iga-1", "type": "VENTILER", "subcategoryId": null, "valeur": "[{\"subcategoryId\":\"sc-epicerie\",\"partMille\":700},{\"subcategoryId\":\"sc-sorties\",\"partMille\":300}]", "ordre": 0 }
+      ]
+    },
+    "r-ventiler-iga-bis": {
+      "id": "r-ventiler-iga-bis",
+      "libelle": "Ventilation IGA bis",
+      "priorite": 10,
+      "actif": true,
+      "conditions": [
+        { "id": "c-ventiler-iga-bis-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-ventiler-iga-bis-1", "type": "VENTILER", "subcategoryId": null, "valeur": "[{\"subcategoryId\":\"sc-epicerie\",\"partMille\":500},{\"subcategoryId\":\"sc-sorties\",\"partMille\":500}]", "ordre": 0 }
+      ]
+    },
+    "r-ventiler-haut": {
+      "id": "r-ventiler-haut",
+      "libelle": "Ventilation IGA prioritaire",
+      "priorite": 12,
+      "actif": true,
+      "conditions": [
+        { "id": "c-ventiler-haut-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-ventiler-haut-1", "type": "VENTILER", "subcategoryId": null, "valeur": "[{\"subcategoryId\":\"sc-epicerie\",\"partMille\":700},{\"subcategoryId\":\"sc-sorties\",\"partMille\":300}]", "ordre": 0 }
+      ]
+    },
+    "r-ventiler-bas": {
+      "id": "r-ventiler-bas",
+      "libelle": "Ventilation IGA secondaire",
+      "priorite": 4,
+      "actif": true,
+      "conditions": [
+        { "id": "c-ventiler-bas-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "IGA", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-ventiler-bas-1", "type": "VENTILER", "subcategoryId": null, "valeur": "[{\"subcategoryId\":\"sc-epicerie\",\"partMille\":700},{\"subcategoryId\":\"sc-sorties\",\"partMille\":300}]", "ordre": 0 }
+      ]
+    },
+    "r-sens-entree": {
+      "id": "r-sens-entree",
+      "libelle": "Entrée d'argent",
+      "priorite": 4,
+      "actif": true,
+      "conditions": [
+        { "id": "c-sens-entree-1", "champ": "SENS", "operateur": "EGALE", "valeur": "ENTREE", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-sens-entree-1", "type": "CATEGORISER", "subcategoryId": "sc-paie", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-benef-amazon": {
+      "id": "r-benef-amazon",
+      "libelle": "Bénéficiaire Amazon",
+      "priorite": 4,
+      "actif": true,
+      "conditions": [
+        { "id": "c-benef-amazon-1", "champ": "BENEFICIAIRE", "operateur": "CONTIENT", "valeur": "AMAZON", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-benef-amazon-1", "type": "CATEGORISER", "subcategoryId": "sc-sorties", "valeur": null, "ordre": 0 }
+      ]
+    }
+  },
+  "lignes": {
+    "L-IGA": {
+      "description": "IGA VALBRUME",
+      "descriptionNormalisee": "IGA VALBRUME",
+      "montantCents": -8500,
+      "accountId": "cpt-cheque",
+      "payeeNom": null
+    },
+    "L-RESTO-PETIT": {
+      "description": "RESTAURANT ST-HUBERT",
+      "descriptionNormalisee": "RESTAURANT ST-HUBERT",
+      "montantCents": -2100,
+      "accountId": "cpt-visa",
+      "payeeNom": null
+    },
+    "L-RESTO-GROS": {
+      "description": "RESTAURANT LA BONNE TABLE",
+      "descriptionNormalisee": "RESTAURANT LA BONNE TABLE",
+      "montantCents": -21000,
+      "accountId": "cpt-visa",
+      "payeeNom": null
+    },
+    "L-PETRO": {
+      "description": "PETRO-CANADA",
+      "descriptionNormalisee": "PETRO-CANADA",
+      "montantCents": -6500,
+      "accountId": "cpt-visa",
+      "payeeNom": null
+    },
+    "L-AMAZON": {
+      "description": "AMAZON.COM*2K4LM9",
+      "descriptionNormalisee": "AMAZON.COM",
+      "montantCents": -4999,
+      "accountId": "cpt-visa",
+      "payeeNom": null
+    },
+    "L-PAIE": {
+      "description": "DEPOT PAIE",
+      "descriptionNormalisee": "DEPOT PAIE",
+      "montantCents": 244300,
+      "accountId": "cpt-cheque",
+      "payeeNom": null
+    },
+    "L-NUL": {
+      "description": "AJUSTEMENT",
+      "descriptionNormalisee": "AJUSTEMENT",
+      "montantCents": 0,
+      "accountId": "cpt-cheque",
+      "payeeNom": null
+    }
+  },
+  "beneficiaires": {
+    "B-VERROU": {
+      "payeeId": "p-iga",
+      "nom": "IGA",
+      "sousCategorieParDefautId": "sc-sorties",
+      "autoCategorisation": true,
+      "categorieVerrouillee": true
+    },
+    "B-DEFAUT-ESSENCE": {
+      "payeeId": "p-petro",
+      "nom": "Petro-Canada",
+      "sousCategorieParDefautId": "sc-essence",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    },
+    "B-SANS-AUTO": {
+      "payeeId": "p-petro",
+      "nom": "Petro-Canada",
+      "sousCategorieParDefautId": "sc-essence",
+      "autoCategorisation": false,
+      "categorieVerrouillee": false
+    },
+    "B-DEFAUT-SORTIES": {
+      "payeeId": "p-resto",
+      "nom": "Restaurant",
+      "sousCategorieParDefautId": "sc-sorties",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    }
+  },
+  "scenarios": [
+    {
+      "nom": "S1 condition simple",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-epicerie",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-iga",
+        "reglesCorrespondantes": ["r-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S2 trois conditions en ET, toutes vraies",
+      "ligne": "L-RESTO-GROS",
+      "beneficiaire": null,
+      "regles": ["r-resto-visa"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-restaurant",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-resto-visa",
+        "reglesCorrespondantes": ["r-resto-visa"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S3 une condition du ET est fausse",
+      "ligne": "L-RESTO-PETIT",
+      "beneficiaire": null,
+      "regles": ["r-resto-visa"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": [],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S4 conflit a priorite egale",
+      "ligne": "L-RESTO-PETIT",
+      "beneficiaire": null,
+      "regles": ["r-resto-a", "r-resto-b"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": true
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-resto-a", "r-resto-b"],
+        "conflits": [
+          {
+            "slot": "SOUS_CATEGORIE",
+            "priorite": 5,
+            "candidats": [
+              { "ruleId": "r-resto-a", "libelle": "Restaurant (conflit A)", "valeur": "sc-restaurant" },
+              { "ruleId": "r-resto-b", "libelle": "Restaurant (conflit B)", "valeur": "sc-sorties" }
+            ]
+          }
+        ],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S5 priorite superieure tranche",
+      "ligne": "L-RESTO-GROS",
+      "beneficiaire": null,
+      "regles": ["r-resto-a", "r-resto-b", "r-resto-visa"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-restaurant",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-resto-visa",
+        "reglesCorrespondantes": ["r-resto-visa", "r-resto-a", "r-resto-b"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S6 meme valeur a priorite egale : pas un conflit",
+      "ligne": "L-RESTO-PETIT",
+      "beneficiaire": null,
+      "regles": ["r-resto-a", "r-resto-c"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-restaurant",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-resto-a",
+        "reglesCorrespondantes": ["r-resto-a", "r-resto-c"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S7 actions differentes : les deux s'appliquent",
+      "ligne": "L-PETRO",
+      "beneficiaire": null,
+      "regles": ["r-etq-auto", "r-etq-recurrent"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": ["tag-auto", "tag-recurrent"],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-etq-auto", "r-etq-recurrent"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S8 actions multiples dans l'ordre",
+      "ligne": "L-AMAZON",
+      "beneficiaire": null,
+      "regles": ["r-amazon"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": "Amazon",
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": true
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-amazon"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S9 regle inactive ignoree",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga", "r-inactif"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-epicerie",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-iga",
+        "reglesCorrespondantes": ["r-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S10 regex invalide signalee",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga", "r-regex-cassee"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-epicerie",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-iga",
+        "reglesCorrespondantes": ["r-iga"],
+        "conflits": [],
+        "reglesInapplicables": [{ "ruleId": "r-regex-cassee", "motif": "REGEX_INVALIDE" }],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S11 regle sans condition",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-sans-condition"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": [],
+        "conflits": [],
+        "reglesInapplicables": [{ "ruleId": "r-sans-condition", "motif": "AUCUNE_CONDITION" }],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S12 VENTILER illisible : regle inapplicable, rien ne s'applique",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-ventiler"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": [],
+        "conflits": [],
+        "reglesInapplicables": [{ "ruleId": "r-ventiler", "motif": "VENTILATION_ILLISIBLE" }],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S13 beneficiaire verrouille bat la regle",
+      "ligne": "L-IGA",
+      "beneficiaire": "B-VERROU",
+      "regles": ["r-iga"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-sorties",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": [{ "ruleId": "r-iga", "type": "CATEGORISER", "motif": "CATEGORIE_VERROUILLEE" }]
+      }
+    },
+    {
+      "nom": "S14 defaut du beneficiaire",
+      "ligne": "L-PETRO",
+      "beneficiaire": "B-DEFAUT-ESSENCE",
+      "regles": ["r-etq-auto"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-essence",
+          "ventilation": null,
+          "tagIds": ["tag-auto"],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-etq-auto"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S15 autoCategorisation false",
+      "ligne": "L-PETRO",
+      "beneficiaire": "B-SANS-AUTO",
+      "regles": ["r-etq-auto"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": ["tag-auto"],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-etq-auto"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S16 le defaut ne comble pas un conflit",
+      "ligne": "L-RESTO-PETIT",
+      "beneficiaire": "B-DEFAUT-SORTIES",
+      "regles": ["r-resto-a", "r-resto-b"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": true
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-resto-a", "r-resto-b"],
+        "conflits": [
+          {
+            "slot": "SOUS_CATEGORIE",
+            "priorite": 5,
+            "candidats": [
+              { "ruleId": "r-resto-a", "libelle": "Restaurant (conflit A)", "valeur": "sc-restaurant" },
+              { "ruleId": "r-resto-b", "libelle": "Restaurant (conflit B)", "valeur": "sc-sorties" }
+            ]
+          }
+        ],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S17 SENS ENTREE sur une entree",
+      "ligne": "L-PAIE",
+      "beneficiaire": null,
+      "regles": ["r-sens-entree"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-paie",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-sens-entree",
+        "reglesCorrespondantes": ["r-sens-entree"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S18 SENS ENTREE sur un montant nul",
+      "ligne": "L-NUL",
+      "beneficiaire": null,
+      "regles": ["r-sens-entree"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": [],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S19 BENEFICIAIRE sans beneficiaire resolu",
+      "ligne": "L-AMAZON",
+      "beneficiaire": null,
+      "regles": ["r-benef-amazon"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": [],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S20 verrou plus conflit",
+      "ligne": "L-RESTO-PETIT",
+      "beneficiaire": "B-VERROU",
+      "regles": ["r-resto-a", "r-resto-b"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-sorties",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-resto-a", "r-resto-b"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": [
+          { "ruleId": "r-resto-a", "type": "CATEGORISER", "motif": "CATEGORIE_VERROUILLEE" },
+          { "ruleId": "r-resto-b", "type": "CATEGORISER", "motif": "CATEGORIE_VERROUILLEE" }
+        ]
+      }
+    },
+    {
+      "nom": "S21 VENTILER seule",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-ventiler-iga"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": [
+            { "subcategoryId": "sc-epicerie", "partMille": 700 },
+            { "subcategoryId": "sc-sorties", "partMille": 300 }
+          ],
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-ventiler-iga",
+        "reglesCorrespondantes": ["r-ventiler-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S22 VENTILER contre CATEGORISER a priorite egale : rien d'applique",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga", "r-ventiler-iga"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": true
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-iga", "r-ventiler-iga"],
+        "conflits": [
+          {
+            "slot": "SOUS_CATEGORIE",
+            "priorite": 10,
+            "candidats": [
+              { "ruleId": "r-iga", "libelle": "Épicerie IGA", "valeur": "sc-epicerie" },
+              {
+                "ruleId": "r-ventiler-iga",
+                "libelle": "Ventilation IGA",
+                "valeur": "ventilation:sc-epicerie=700;sc-sorties=300",
+                "ventilation": [
+                  { "subcategoryId": "sc-epicerie", "partMille": 700 },
+                  { "subcategoryId": "sc-sorties", "partMille": 300 }
+                ]
+              }
+            ]
+          }
+        ],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S23 VENTILER de priorite superieure gagne",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga", "r-ventiler-haut"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": [
+            { "subcategoryId": "sc-epicerie", "partMille": 700 },
+            { "subcategoryId": "sc-sorties", "partMille": 300 }
+          ],
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-ventiler-haut",
+        "reglesCorrespondantes": ["r-ventiler-haut", "r-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S24 CATEGORISER de priorite superieure bat VENTILER",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-iga", "r-ventiler-bas"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-epicerie",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": "r-iga",
+        "reglesCorrespondantes": ["r-iga", "r-ventiler-bas"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    },
+    {
+      "nom": "S25 beneficiaire verrouille bat VENTILER",
+      "ligne": "L-IGA",
+      "beneficiaire": "B-VERROU",
+      "regles": ["r-ventiler-iga"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": "sc-sorties",
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": false
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-ventiler-iga"],
+        "conflits": [],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": [{ "ruleId": "r-ventiler-iga", "type": "VENTILER", "motif": "CATEGORIE_VERROUILLEE" }]
+      }
+    },
+    {
+      "nom": "S26 deux VENTILER differentes a priorite egale : rien d'applique",
+      "ligne": "L-IGA",
+      "beneficiaire": null,
+      "regles": ["r-ventiler-iga", "r-ventiler-iga-bis"],
+      "attendu": {
+        "affectation": {
+          "payeeNom": null,
+          "subcategoryId": null,
+          "ventilation": null,
+          "tagIds": [],
+          "note": null,
+          "exclureDuBudget": false,
+          "exclureDesRapports": false,
+          "aRevoir": true
+        },
+        "regleAppliqueeId": null,
+        "reglesCorrespondantes": ["r-ventiler-iga", "r-ventiler-iga-bis"],
+        "conflits": [
+          {
+            "slot": "SOUS_CATEGORIE",
+            "priorite": 10,
+            "candidats": [
+              {
+                "ruleId": "r-ventiler-iga",
+                "libelle": "Ventilation IGA",
+                "valeur": "ventilation:sc-epicerie=700;sc-sorties=300",
+                "ventilation": [
+                  { "subcategoryId": "sc-epicerie", "partMille": 700 },
+                  { "subcategoryId": "sc-sorties", "partMille": 300 }
+                ]
+              },
+              {
+                "ruleId": "r-ventiler-iga-bis",
+                "libelle": "Ventilation IGA bis",
+                "valeur": "ventilation:sc-epicerie=500;sc-sorties=500",
+                "ventilation": [
+                  { "subcategoryId": "sc-epicerie", "partMille": 500 },
+                  { "subcategoryId": "sc-sorties", "partMille": 500 }
+                ]
+              }
+            ]
+          }
+        ],
+        "reglesInapplicables": [],
+        "actionsNonAppliquees": []
+      }
+    }
+  ]
+}

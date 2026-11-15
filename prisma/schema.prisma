@@ -1,0 +1,952 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════ énumérations
+
+enum TypeCompte {
+  CHEQUE
+  EPARGNE
+  CREDIT
+  MARGE
+  PRET
+  PLACEMENT
+  ACTIF
+  PASSIF
+  AUTRE
+}
+
+enum RegimeFiscal {
+  NON_ENREGISTRE
+  REER
+  CELI
+  CELIAPP
+  REEE
+  CRI
+  FERR
+}
+
+enum ModeCorrespondance {
+  CONTIENT
+  MOT_ENTIER
+  REGEX
+  EXACT
+}
+
+enum SourceIngestion {
+  COPIER_COLLER
+  FICHIER
+  AGREGATEUR
+  MANUELLE
+  AJUSTEMENT
+}
+
+enum EtatTransaction {
+  EN_ATTENTE
+  COMPTABILISEE
+}
+
+enum EtatRapprochement {
+  NON_RAPPROCHEE
+  RAPPROCHEE
+  RECONCILIEE
+}
+
+enum NatureRecurrence {
+  FIXE
+  VARIABLE
+}
+
+enum EtatOccurrence {
+  PREVUE
+  REALISEE
+  REALISEE_MONTANT_DIFFERENT
+  MANQUEE
+  IGNOREE
+}
+
+enum TypeLiaison {
+  AUTO
+  MANUELLE
+  RETROACTIVE
+}
+
+enum Estimateur {
+  MEDIANE_6
+  MOYENNE_3
+  MOYENNE_6
+  MOYENNE_TRONQUEE
+  MONTANT_FIXE
+  BUDGET
+}
+
+enum SourceSolde {
+  MANUEL
+  RELEVE
+  AGREGATEUR
+}
+
+enum SensFlux {
+  SORTANT
+  ENTRANT
+}
+
+enum Arrondi {
+  CENTS
+  DOLLARS
+}
+
+enum EtatSuggestion {
+  EN_ATTENTE
+  ACCEPTEE
+  REFUSEE
+}
+
+// 12 cadences — le jeu de YNAB. PONCTUEL = occurrence unique datée.
+enum Cadence {
+  HEBDO
+  AUX_2_SEMAINES
+  AUX_4_SEMAINES
+  DEUX_FOIS_PAR_MOIS
+  MENSUEL
+  AUX_2_MOIS
+  AUX_3_MOIS
+  AUX_4_MOIS
+  SEMESTRIEL
+  ANNUEL
+  AUX_2_ANS
+  PONCTUEL
+}
+
+// budget
+enum ModeBudget {
+  PAR_SOUS_CATEGORIE
+  PAR_CATEGORIE
+}
+
+enum ModeReport {
+  AUCUN
+  SIGNE
+  POSITIF_SEULEMENT
+}
+
+enum ModeCible {
+  RECOMPLETER
+  ACCUMULER
+}
+
+// règles de catégorisation
+enum ChampCondition {
+  DESCRIPTION
+  DESCRIPTION_NORMALISEE
+  BENEFICIAIRE
+  MONTANT
+  COMPTE
+  SENS
+}
+
+enum OperateurCondition {
+  CONTIENT
+  MOT_ENTIER
+  EGALE
+  COMMENCE_PAR
+  REGEX
+  SUP
+  SUP_EGAL
+  INF
+  INF_EGAL
+  ENTRE
+  DANS
+}
+
+enum TypeAction {
+  RENOMMER_BENEFICIAIRE
+  CATEGORISER
+  ETIQUETER
+  NOTER
+  EXCLURE_BUDGET
+  EXCLURE_RAPPORTS
+  MARQUER_A_REVOIR
+  VENTILER
+}
+
+// objectifs, dettes, scénarios
+enum TypeObjectif {
+  EPARGNE
+  REMBOURSEMENT
+}
+
+enum ModeAllocationObjectif {
+  TOTAL
+  PARTIEL
+}
+
+enum StrategieDette {
+  AVALANCHE
+  BOULE_DE_NEIGE
+  PERSONNALISEE
+}
+
+enum TypeSurcharge {
+  REVENU
+  DEPENSE_RECURRENTE
+  EVENEMENT
+  TAUX_RENDEMENT
+  SOLDE_INITIAL
+  PAIEMENT_DETTE
+  CIBLE_ENVELOPPE
+}
+
+// ═══════════════════════════════════════════ propriétaire
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nom       String?
+  createdAt DateTime @default(now())
+
+  comptes       Account[]
+  categories    Category[]
+  beneficiaires Payee[]
+  etiquettes    Tag[]
+  regles        Rule[]
+  filtres       ImportFilter[]
+  transactions  Transaction[]
+  lots          ImportBatch[]
+  allocations   BudgetAllocation[]
+  mouvements    MoneyMovement[]
+  recurrences   RecurringRule[]
+  evenements    PlannedEvent[]
+  suggestions   RecurrenceSuggestion[]
+  objectifs     Goal[]
+  plansDette    DebtPlan[]
+  scenarios     Scenario[]
+  rapports      SavedReport[]
+  fluxAgenda    CalendarFeed[]
+  preference    Preference?
+  reglagesPrev  ForecastSettings?
+}
+
+model Preference {
+  ownerId String  @id
+  arrondi Arrondi @default(CENTS)
+  locale  String  @default("fr-CA")
+  theme   String  @default("system")
+  owner   User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+// ═══════════════════════════════════════════ comptes
+
+model Account {
+  id          String     @id @default(cuid())
+  ownerId     String
+  nom         String
+  type        TypeCompte @default(CHEQUE)
+  institution String?
+
+  // Un compte de suivi porte un solde et entre dans la valeur nette,
+  // mais ses transactions ne sont pas catégorisées et n'entrent pas au budget.
+  estBudgetaire Boolean @default(true)
+
+  soldeInitialCents      Int      @default(0)
+  dateSoldeInitial       DateTime @db.Date
+  seuilSecuriteCents     Int?
+  inclureDansPrevision   Boolean  @default(true)
+  inclureDansValeurNette Boolean  @default(true)
+
+  // ── carte de crédit et marge
+  limiteCreditCents Int?
+  tauxAnnuel        Float? // ex. 0.1999
+  jourReleve        Int? // 1–31 : jour de fermeture du relevé
+  jourEcheance      Int? // 1–31 : date limite de paiement
+  perdDelaiDeGrace  Boolean @default(true) // règle canadienne : dès qu'un solde est reporté,
+  // les intérêts courent depuis la date d'achat
+
+  // ── placement
+  regimeFiscal        RegimeFiscal @default(NON_ENREGISTRE)
+  tauxRendementAnnuel Float? // sert à la projection de valeur nette
+
+  // Lie un actif à son passif : la maison et son hypothèque, l'auto et son prêt.
+  // Pas unique : une maison porte une hypothèque et une marge (A5).
+  compteLieId String?
+
+  archive   Boolean  @default(false)
+  ordre     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  owner           User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  compteLie       Account?            @relation("compteLie", fields: [compteLieId], references: [id], onDelete: SetNull)
+  lieDepuis       Account[]           @relation("compteLie")
+  transactions    Transaction[]       @relation("compte")
+  virementsRecus  Transaction[]       @relation("compteContrepartie")
+  recurrences     RecurringRule[]
+  evenements      PlannedEvent[]
+  releves         BalanceStatement[]
+  reconciliations Reconciliation[]
+  lots            ImportBatch[]
+  termesPret      LoanTerm[]
+  plafonds        ContributionRoom[]
+  cotisations     ContributionEntry[]
+  allocationsObj  GoalAccount[]
+  lignesPlanDette DebtPlanItem[]
+  repartitions    AssetAllocation[]
+
+  @@unique([ownerId, nom])
+  @@index([ownerId, archive])
+  @@index([ownerId, type])
+}
+
+// Paramètres de prêt datés : un taux qui change au renouvellement
+// ne doit jamais réécrire le passé.
+model LoanTerm {
+  id                  String    @id @default(cuid())
+  accountId           String
+  moisEffectif        String // "2026-09"
+  capitalInitialCents Int?
+  tauxAnnuel          Float
+  compositionParAn    Int       @default(2) // 2 = convention canadienne (semestrielle)
+  paiementsParAn      Int       @default(12)
+  paiementCents       Int
+  nbPaiements         Int?
+  dateDebut           DateTime? @db.Date
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, moisEffectif])
+  @@index([accountId, moisEffectif])
+}
+
+// Une cotisation REER faite dans les 60 premiers jours de l'année peut être
+// imputée à l'année précédente. L'année d'imputation n'est donc pas déductible
+// de la date de la transaction.
+model ContributionEntry {
+  id              String @id @default(cuid())
+  accountId       String
+  transactionId   String @unique
+  anneeImputation Int
+  montantCents    Int
+
+  account     Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, anneeImputation])
+}
+
+// Droits de cotisation REER / CELI / CELIAPP, par année.
+// BudgApp ne calcule pas les droits, il les suit : le plafond vient de
+// l'avis de cotisation de l'ARC, saisi à la main.
+model ContributionRoom {
+  id           String @id @default(cuid())
+  accountId    String
+  annee        Int
+  plafondCents Int
+  reportCents  Int    @default(0) // droits inutilisés reportés des années antérieures
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, annee])
+}
+
+model AssetAllocation {
+  id        String @id @default(cuid())
+  accountId String
+  classe    String // "Actions", "Obligations", "Liquidités"…
+  partMille Int // en pour mille, pour éviter le flottant : 600 = 60,0 %
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, classe])
+}
+
+// ═══════════════════════════════════════════ référentiel
+
+model Category {
+  id         String     @id @default(cuid())
+  ownerId    String
+  nom        String
+  ordre      Int        @default(0)
+  couleur    String?
+  icone      String?
+  masquee    Boolean    @default(false)
+  modeBudget ModeBudget @default(PAR_SOUS_CATEGORIE)
+
+  owner          User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sousCategories Subcategory[]
+  allocations    BudgetAllocation[]
+
+  @@unique([ownerId, nom])
+  @@index([ownerId, ordre])
+}
+
+model Subcategory {
+  id         String  @id @default(cuid())
+  categoryId String
+  nom        String
+  ordre      Int     @default(0)
+  masquee    Boolean @default(false)
+  systeme    Boolean @default(false) // « Ajustement de solde », « Intérêts de carte » : non supprimables
+
+  // ── report d'un mois sur l'autre
+  reportActif Boolean    @default(true)
+  reportMode  ModeReport @default(SIGNE)
+
+  category               Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  regles                 RuleAction[]
+  transactions           Transaction[]
+  recurrences            RecurringRule[]
+  evenements             PlannedEvent[]
+  allocations            BudgetAllocation[]
+  cible                  Target?
+  prevision              SubcategoryForecast?
+  mouvementsDe           MoneyMovement[]      @relation("mouvementDe")
+  mouvementsA            MoneyMovement[]      @relation("mouvementVers")
+  beneficiairesParDefaut Payee[]
+
+  @@unique([categoryId, nom])
+  @@index([categoryId, ordre])
+}
+
+model Payee {
+  id                       String  @id @default(cuid())
+  ownerId                  String
+  nom                      String
+  nomNormalise             String
+  sousCategorieParDefautId String?
+  autoCategorisation       Boolean @default(true) // false = ne jamais imposer de catégorie
+  categorieVerrouillee     Boolean @default(false) // true = catégorie fixée à la main
+
+  owner                  User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sousCategorieParDefaut Subcategory?  @relation(fields: [sousCategorieParDefautId], references: [id], onDelete: SetNull)
+  transactions           Transaction[]
+
+  @@unique([ownerId, nom])
+  // Clé d'identité douce (normaliserNom) : deux graphies qui ne diffèrent que
+  // par la casse, les accents ou les espaces sont le même bénéficiaire.
+  @@unique([ownerId, nomNormalise])
+}
+
+model Tag {
+  id      String  @id @default(cuid())
+  ownerId String
+  nom     String
+  couleur String?
+
+  // Une liste de surveillance = une étiquette avec une cible mensuelle.
+  cibleMensuelleCents Int?
+
+  owner        User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  transactions TransactionTag[]
+
+  @@unique([ownerId, nom])
+}
+
+// ═══════════════════════════════════════════ règles de catégorisation
+
+model Rule {
+  id        String   @id @default(cuid())
+  ownerId   String
+  libelle   String
+  priorite  Int      @default(0)
+  actif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  owner        User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  conditions   RuleCondition[]
+  actions      RuleAction[]
+  transactions Transaction[]
+
+  @@index([ownerId, actif, priorite])
+}
+
+// Toutes les conditions d'une règle se combinent en ET.
+model RuleCondition {
+  id        String             @id @default(cuid())
+  ruleId    String
+  champ     ChampCondition
+  operateur OperateurCondition
+  valeur    String // texte, montant en cents, ou id de compte
+  valeurFin String? // borne haute pour ENTRE
+
+  rule Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+}
+
+model RuleAction {
+  id            String     @id @default(cuid())
+  ruleId        String
+  type          TypeAction
+  subcategoryId String?
+  valeur        String? // nom du bénéficiaire, note, id d'étiquette, ventilation JSON
+  ordre         Int        @default(0)
+
+  rule        Rule         @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId, ordre])
+}
+
+model ImportFilter {
+  id      String             @id @default(cuid())
+  ownerId String
+  motif   String
+  mode    ModeCorrespondance @default(EXACT)
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, motif, mode])
+}
+
+// ═══════════════════════════════════════════ transactions
+
+model ImportBatch {
+  id        String          @id @default(cuid())
+  ownerId   String
+  accountId String
+  source    SourceIngestion
+  libelle   String?
+  importeLe DateTime        @default(now())
+  nbLignes  Int
+  couvreDu  DateTime?       @db.Date
+  couvreAu  DateTime?       @db.Date
+
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+}
+
+model Transaction {
+  id                    String   @id @default(cuid())
+  ownerId               String
+  accountId             String
+  date                  DateTime @db.Date
+  description           String
+  descriptionNormalisee String
+  typeOperation         String? // docs/lot-m2.md §3.1 : type d'opération du relevé (« Achat », « Paie »…) ; null avant M2 et pour une saisie manuelle. Hors empreinte, règles et dédoublonnage.
+  details               String?
+  montantCents          Int // signé : négatif = sortie
+  payeeId               String?
+  subcategoryId         String?
+
+  // ── ventilation : une ligne fille est une Transaction avec un parent.
+  // Un parent ventilé est exclu des agrégats de catégorie ; ses filles les portent.
+  parentId    String?
+  estVentilee Boolean @default(false)
+
+  // ── virement : paire symétrique liée. Exclu du budget des deux côtés.
+  // C'est ce qui fait qu'un paiement de carte ne compte ni comme dépense,
+  // ni comme revenu — les deux lignes s'annulent.
+  transferAccountId     String?
+  transferTransactionId String? @unique
+
+  source             SourceIngestion
+  etat               EtatTransaction   @default(COMPTABILISEE)
+  rapprochement      EtatRapprochement @default(NON_RAPPROCHEE)
+  aRevoir            Boolean           @default(false)
+  exclureDuBudget    Boolean           @default(false)
+  exclureDesRapports Boolean           @default(false)
+
+  externalId    String?
+  empreinte     String
+  importBatchId String?
+  appliedRuleId String? // pourquoi cette transaction porte cette catégorie
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  owner              User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  account            Account             @relation("compte", fields: [accountId], references: [id], onDelete: Restrict)
+  compteContrepartie Account?            @relation("compteContrepartie", fields: [transferAccountId], references: [id], onDelete: SetNull)
+  payee              Payee?              @relation(fields: [payeeId], references: [id], onDelete: SetNull)
+  subcategory        Subcategory?        @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  parent             Transaction?        @relation("ventilation", fields: [parentId], references: [id], onDelete: Cascade)
+  lignes             Transaction[]       @relation("ventilation")
+  contrepartie       Transaction?        @relation("virement", fields: [transferTransactionId], references: [id], onDelete: SetNull)
+  virementMiroir     Transaction?        @relation("virement")
+  importBatch        ImportBatch?        @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  regle              Rule?               @relation(fields: [appliedRuleId], references: [id], onDelete: SetNull)
+  occurrence         ExpectedOccurrence?
+  etiquettes         TransactionTag[]
+  ajustement         Reconciliation?     @relation("ajustement")
+  liensObjectif      GoalTransaction[]
+  cotisation         ContributionEntry?
+
+  @@unique([empreinte])
+  @@unique([accountId, externalId])
+  @@index([ownerId, date])
+  @@index([accountId, date])
+  @@index([subcategoryId, date])
+  @@index([accountId, descriptionNormalisee])
+  @@index([ownerId, aRevoir])
+  @@index([parentId])
+  @@index([payeeId, date])
+}
+
+model TransactionTag {
+  transactionId String
+  tagId         String
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  tag         Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([transactionId, tagId])
+  @@index([tagId])
+}
+
+// ═══════════════════════════════════════════ budget : enveloppes
+
+// Ce que tu ASSIGNES à une enveloppe pour un mois donné.
+// Le « dépensé » et le « disponible » ne sont jamais stockés : ils se calculent.
+//   disponible(s, m) = report(s, m) + assigné(s, m) + activité(s, m)
+model BudgetAllocation {
+  id                  String  @id @default(cuid())
+  ownerId             String
+  categoryId          String? // renseigné si la catégorie budgète PAR_CATEGORIE
+  subcategoryId       String?
+  mois                String // "2026-09"
+  montantAssigneCents Int     @default(0)
+
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  category    Category?    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, categoryId, subcategoryId, mois])
+  @@index([ownerId, mois])
+}
+
+// La cible d'une enveloppe : montant × cadence × jour × comportement.
+// « 340 $ par année le 15 mars » produit un besoin mensuel de 29 $, calculé.
+model Target {
+  subcategoryId   String    @id
+  montantCents    Int
+  cadence         Cadence   @default(MENSUEL)
+  jourEcheance    Int? // 1–31, ou null = dernier jour du mois
+  mode            ModeCible @default(RECOMPLETER)
+  dateDebut       DateTime  @db.Date
+  dateCible       DateTime? @db.Date
+  enVeilleJusquau String? // "2026-09" : cesse de signaler le sous-financement ce mois-là
+
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+}
+
+// Un déplacement d'argent entre enveloppes est un ÉVÉNEMENT conservé,
+// pas une mutation. C'est la condition de l'historique et de l'annulation.
+model MoneyMovement {
+  id           String    @id @default(cuid())
+  ownerId      String
+  mois         String
+  deId         String? // null = depuis le reste à assigner
+  versId       String? // null = vers le reste à assigner
+  montantCents Int
+  note         String?
+  groupeId     String? // plusieurs mouvements d'une même action : annulation groupée
+  effectueLe   DateTime  @default(now())
+  annuleLe     DateTime?
+
+  owner User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  de    Subcategory? @relation("mouvementDe", fields: [deId], references: [id], onDelete: Cascade)
+  vers  Subcategory? @relation("mouvementVers", fields: [versId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, mois])
+  @@index([groupeId])
+}
+
+// ═══════════════════════════════════════════ récurrences
+
+model RecurringRule {
+  id                 String           @id @default(cuid())
+  ownerId            String
+  libelle            String
+  nature             NatureRecurrence
+  montantCents       Int? // requis si FIXE
+  cadence            Cadence
+  dateAncrage        DateTime         @db.Date
+  dateFin            DateTime?        @db.Date
+  accountId          String
+  subcategoryId      String?
+  motifRapprochement String?
+  toleranceCents     Int              @default(500)
+  toleranceJours     Int              @default(4)
+  scoreConfiance     Float?
+  actif              Boolean          @default(true)
+  createdAt          DateTime         @default(now())
+
+  owner       User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  account     Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  subcategory Subcategory?         @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  ventilation RecurringSplit[]
+  occurrences ExpectedOccurrence[]
+
+  @@index([ownerId, actif])
+}
+
+// Le paiement hypothécaire qui se découpe en capital / intérêts / assurance
+// à chaque échéance.
+model RecurringSplit {
+  id            String  @id @default(cuid())
+  ruleId        String
+  subcategoryId String?
+  montantCents  Int?
+  partMille     Int? // en pour mille, si la ventilation est proportionnelle
+  libelle       String?
+
+  rule RecurringRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+}
+
+model ExpectedOccurrence {
+  id            String         @id @default(cuid())
+  ruleId        String
+  echeance      DateTime       @db.Date
+  montantCents  Int
+  etat          EtatOccurrence @default(PREVUE)
+  liaison       TypeLiaison?
+  lieeLe        DateTime?
+  transactionId String?        @unique
+
+  rule        RecurringRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  transaction Transaction?  @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@unique([ruleId, echeance])
+  @@index([etat, echeance])
+}
+
+model RecurrenceSuggestion {
+  id                 String         @id @default(cuid())
+  ownerId            String
+  accountId          String
+  motif              String
+  cadence            Cadence
+  montantMedianCents Int
+  nbOccurrences      Int
+  regularite         Float
+  stabilite          Float
+  score              Float
+  transactionIds     String[]
+  etat               EtatSuggestion @default(EN_ATTENTE)
+  detecteeLe         DateTime       @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, etat, score])
+}
+
+// ═══════════════════════════════════════════ prévision
+
+model PlannedEvent {
+  id            String   @id @default(cuid())
+  ownerId       String
+  libelle       String
+  date          DateTime @db.Date
+  montantCents  Int
+  accountId     String?
+  subcategoryId String?
+  feedId        String?
+  externalUid   String?
+  aCompleter    Boolean  @default(false)
+
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  account     Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  subcategory Subcategory?  @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  feed        CalendarFeed? @relation(fields: [feedId], references: [id], onDelete: SetNull)
+
+  @@unique([feedId, externalUid])
+  @@index([ownerId, date])
+}
+
+model ForecastSettings {
+  ownerId             String     @id
+  horizonMois         Int        @default(12)
+  fenetreMois         Int        @default(6)
+  estimateurParDefaut Estimateur @default(MEDIANE_6)
+  owner               User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model SubcategoryForecast {
+  subcategoryId    String      @id
+  estimateur       Estimateur
+  montantFixeCents Int?
+  subcategory      Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+}
+
+model CalendarFeed {
+  id           String    @id @default(cuid())
+  ownerId      String
+  libelle      String
+  sens         SensFlux
+  url          String? // ENTRANT : adresse ICS privée de l'agenda source
+  jeton        String? // SORTANT : secret de l'adresse publiée
+  derniereSync DateTime?
+  actif        Boolean   @default(true)
+
+  owner      User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  evenements PlannedEvent[]
+}
+
+// ═══════════════════════════════════════════ scénarios « what if »
+
+// Une surcouche temporaire sur le modèle réel. Ne modifie jamais les données.
+model Scenario {
+  id        String   @id @default(cuid())
+  ownerId   String
+  nom       String
+  note      String?
+  createdAt DateTime @default(now())
+
+  owner      User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  surcharges ScenarioSurcharge[]
+
+  @@unique([ownerId, nom])
+}
+
+model ScenarioSurcharge {
+  id         String        @id @default(cuid())
+  scenarioId String
+  type       TypeSurcharge
+  cibleId    String? // compte, récurrence, enveloppe… selon le type
+  payload    Json // { montantCents, dateDebut, dateFin, taux, … } — validé par zod côté domaine
+  ordre      Int           @default(0)
+
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  @@index([scenarioId, ordre])
+}
+
+// ═══════════════════════════════════════════ objectifs
+
+model Goal {
+  id                         String       @id @default(cuid())
+  ownerId                    String
+  nom                        String
+  type                       TypeObjectif
+  montantCibleCents          Int?
+  dateCible                  DateTime?    @db.Date
+  contributionMensuelleCents Int?
+  depenseReduitProgression   Boolean      @default(true)
+  tauxCroissanceAnnuel       Float?
+
+  // Ancrage de départ, figé à la création. Sans lui, la trajectoire attendue
+  // se recalcule à chaque consultation et le statut ne veut plus rien dire.
+  acquisInitialCents Int      @default(0)
+  dateDebut          DateTime @db.Date
+
+  ordre     Int      @default(0)
+  archive   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  owner        User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  comptes      GoalAccount[]
+  transactions GoalTransaction[]
+
+  @@unique([ownerId, nom])
+  @@index([ownerId, ordre])
+}
+
+model GoalAccount {
+  id           String                 @id @default(cuid())
+  goalId       String
+  accountId    String
+  mode         ModeAllocationObjectif @default(TOTAL)
+  montantCents Int? // si PARTIEL
+
+  goal    Goal    @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([goalId, accountId])
+}
+
+model GoalTransaction {
+  goalId        String
+  transactionId String
+
+  goal        Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@id([goalId, transactionId])
+}
+
+// ═══════════════════════════════════════════ plan de remboursement de dette
+
+model DebtPlan {
+  id                     String         @id @default(cuid())
+  ownerId                String
+  nom                    String
+  mensualiteTotaleCents  Int
+  strategie              StrategieDette @default(AVALANCHE)
+  versementPonctuelCents Int?
+  versementPonctuelDate  DateTime?      @db.Date
+  actif                  Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+
+  owner  User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  lignes DebtPlanItem[]
+
+  @@unique([ownerId, nom])
+}
+
+model DebtPlanItem {
+  id        String  @id @default(cuid())
+  planId    String
+  accountId String
+  ordre     Int     @default(0) // respecté seulement si strategie = PERSONNALISEE
+  inclus    Boolean @default(true)
+
+  plan    DebtPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  account Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, accountId])
+  @@index([planId, ordre])
+}
+
+// ═══════════════════════════════════════════ soldes et réconciliation
+
+model BalanceStatement {
+  id         String      @id @default(cuid())
+  accountId  String
+  date       DateTime    @db.Date
+  soldeCents Int
+  source     SourceSolde
+  saisiLe    DateTime    @default(now())
+
+  account        Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  reconciliation Reconciliation?
+
+  @@unique([accountId, date, source])
+  @@index([accountId, date])
+}
+
+model Reconciliation {
+  id             String    @id @default(cuid())
+  accountId      String
+  statementId    String    @unique
+  ecartCents     Int
+  explication    String?
+  ajustementTxId String?   @unique
+  regleeLe       DateTime?
+
+  account    Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  statement  BalanceStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  ajustement Transaction?     @relation("ajustement", fields: [ajustementTxId], references: [id], onDelete: SetNull)
+}
+
+// ═══════════════════════════════════════════ rapports enregistrés
+
+model SavedReport {
+  id         String   @id @default(cuid())
+  ownerId    String
+  nom        String
+  type       String // "depenses" | "tendance" | "revenus-depenses" | "budget-reel" | "valeur-nette"
+  groupement String // "categorie" | "sous-categorie" | "beneficiaire" | "etiquette" | "compte"
+  periode    String // "mois-courant" | "3-mois-complets" | "annee-en-cours" | "12-mois" | ISO/ISO
+  filtres    Json
+  createdAt  DateTime @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, nom])
+}

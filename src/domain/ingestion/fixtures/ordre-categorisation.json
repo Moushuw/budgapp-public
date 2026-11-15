@@ -1,0 +1,406 @@
+{
+  "filtres": {
+    "f-frais-o1": { "id": "f-frais-o1", "motif": "FRAIS SERVICE", "mode": "EXACT" },
+    "f-maxi-o8": { "id": "f-maxi-o8", "motif": "MAXI", "mode": "CONTIENT" }
+  },
+  "beneficiaires": {
+    "ben-iga-o2": {
+      "id": "ben-iga-o2",
+      "nom": "IGA",
+      "nomNormalise": "IGA",
+      "sousCategorieParDefautId": "sc-epicerie-o2",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    },
+    "ben-iga-o3": {
+      "id": "ben-iga-o3",
+      "nom": "IGA",
+      "nomNormalise": "IGA",
+      "sousCategorieParDefautId": "sc-epicerie-generique-o3",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    },
+    "ben-iga-valbrume-o3": {
+      "id": "ben-iga-valbrume-o3",
+      "nom": "IGA Valbrume",
+      "nomNormalise": "IGA VALBRUME",
+      "sousCategorieParDefautId": "sc-epicerie-valbrume-o3",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    },
+    "ben-pharmacie-o4": {
+      "id": "ben-pharmacie-o4",
+      "nom": "Pharmacie",
+      "nomNormalise": "PHARMACIE",
+      "sousCategorieParDefautId": "sc-default-o4",
+      "autoCategorisation": true,
+      "categorieVerrouillee": false
+    },
+    "ben-netflix-o5": {
+      "id": "ben-netflix-o5",
+      "nom": "Netflix",
+      "nomNormalise": "NETFLIX",
+      "sousCategorieParDefautId": "sc-locked-o5",
+      "autoCategorisation": true,
+      "categorieVerrouillee": true
+    },
+    "ben-spotify-o6": {
+      "id": "ben-spotify-o6",
+      "nom": "Spotify",
+      "nomNormalise": "SPOTIFY",
+      "sousCategorieParDefautId": "sc-spotify-o6",
+      "autoCategorisation": false,
+      "categorieVerrouillee": false
+    }
+  },
+  "regles": {
+    "r-frais-o1": {
+      "id": "r-frais-o1",
+      "libelle": "Frais de service",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-frais-o1-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "FRAIS", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-frais-o1-1", "type": "CATEGORISER", "subcategoryId": "sc-frais-o1", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-jeancoutu-o4": {
+      "id": "r-jeancoutu-o4",
+      "libelle": "Jean Coutu",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-jeancoutu-o4-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "COUTU", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-jeancoutu-o4-1", "type": "CATEGORISER", "subcategoryId": "sc-jeancoutu-o4", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-netflix-o5": {
+      "id": "r-netflix-o5",
+      "libelle": "Netflix",
+      "priorite": 10,
+      "actif": true,
+      "conditions": [
+        { "id": "c-netflix-o5-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "NETFLIX", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-netflix-o5-1", "type": "CATEGORISER", "subcategoryId": "sc-streaming-o5", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-a-o7": {
+      "id": "r-resto-a-o7",
+      "libelle": "Resto A",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-a-o7-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTO", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-a-o7-1", "type": "CATEGORISER", "subcategoryId": "sc-resto-a-o7", "valeur": null, "ordre": 0 }
+      ]
+    },
+    "r-resto-b-o7": {
+      "id": "r-resto-b-o7",
+      "libelle": "Resto B",
+      "priorite": 5,
+      "actif": true,
+      "conditions": [
+        { "id": "c-resto-b-o7-1", "champ": "DESCRIPTION_NORMALISEE", "operateur": "CONTIENT", "valeur": "RESTO", "valeurFin": null }
+      ],
+      "actions": [
+        { "id": "a-resto-b-o7-1", "type": "CATEGORISER", "subcategoryId": "sc-resto-b-o7", "valeur": null, "ordre": 0 }
+      ]
+    }
+  },
+  "existantes": {
+    "tx-o8": {
+      "id": "tx-o8",
+      "accountId": "cpt-o8",
+      "date": "2026-03-08",
+      "description": "Epicerie Maxi",
+      "descriptionNormalisee": "EPICERIE MAXI",
+      "montantCents": -5000,
+      "empreinte": "empreinte-o8-existante",
+      "externalId": null
+    }
+  },
+  "entrees": {
+    "e-o1": {
+      "cle": "e-o1",
+      "date": "2026-03-05",
+      "description": "Frais service",
+      "montantCents": -495,
+      "accountId": "cpt-o1",
+      "externalId": null,
+      "ligneBrute": "5 mars Frais service 4,95 $",
+      "numeroLigne": 1
+    },
+    "e-o2": {
+      "cle": "e-o2",
+      "date": "2026-03-05",
+      "description": "IGA",
+      "montantCents": -6234,
+      "accountId": "cpt-o2",
+      "externalId": null,
+      "ligneBrute": "5 mars IGA 62,34 $",
+      "numeroLigne": 1
+    },
+    "e-o3": {
+      "cle": "e-o3",
+      "date": "2026-03-05",
+      "description": "IGA Valbrume Quebec",
+      "montantCents": -8899,
+      "accountId": "cpt-o3",
+      "externalId": null,
+      "ligneBrute": "5 mars IGA Valbrume Quebec 88,99 $",
+      "numeroLigne": 1
+    },
+    "e-o4": {
+      "cle": "e-o4",
+      "date": "2026-03-05",
+      "description": "Pharmacie Jean Coutu",
+      "montantCents": -2150,
+      "accountId": "cpt-o4",
+      "externalId": null,
+      "ligneBrute": "5 mars Pharmacie Jean Coutu 21,50 $",
+      "numeroLigne": 1
+    },
+    "e-o5": {
+      "cle": "e-o5",
+      "date": "2026-03-05",
+      "description": "Netflix Abonnement",
+      "montantCents": -1699,
+      "accountId": "cpt-o5",
+      "externalId": null,
+      "ligneBrute": "5 mars Netflix Abonnement 16,99 $",
+      "numeroLigne": 1
+    },
+    "e-o6": {
+      "cle": "e-o6",
+      "date": "2026-03-05",
+      "description": "Spotify",
+      "montantCents": -1099,
+      "accountId": "cpt-o6",
+      "externalId": null,
+      "ligneBrute": "5 mars Spotify 10,99 $",
+      "numeroLigne": 1
+    },
+    "e-o7": {
+      "cle": "e-o7",
+      "date": "2026-03-05",
+      "description": "Resto Chez Nous",
+      "montantCents": -4200,
+      "accountId": "cpt-o7",
+      "externalId": null,
+      "ligneBrute": "5 mars Resto Chez Nous 42,00 $",
+      "numeroLigne": 1
+    },
+    "e-o8": {
+      "cle": "e-o8",
+      "date": "2026-03-10",
+      "description": "Epicerie Maxi",
+      "montantCents": -5000,
+      "accountId": "cpt-o8",
+      "externalId": null,
+      "ligneBrute": "10 mars Epicerie Maxi 50,00 $",
+      "numeroLigne": 1
+    }
+  },
+  "scenarios": [
+    {
+      "nom": "filtre seul — la ligne reste visible, ignorée",
+      "entree": "e-o1",
+      "filtres": ["f-frais-o1"],
+      "beneficiaires": [],
+      "regles": ["r-frais-o1"],
+      "existantes": [],
+      "attendu": {
+        "payeeId": null,
+        "payeeNouveauNom": null,
+        "subcategoryId": "sc-frais-o1",
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": "r-frais-o1",
+        "reglesEnConflit": [],
+        "filtreId": "f-frais-o1",
+        "statutDoublon": "AUCUN",
+        "action": "IGNORER",
+        "section": "FILTREES"
+      }
+    },
+    {
+      "nom": "bénéficiaire par égalité — sa sous-catégorie par défaut s'applique",
+      "entree": "e-o2",
+      "filtres": [],
+      "beneficiaires": ["ben-iga-o2"],
+      "regles": [],
+      "existantes": [],
+      "attendu": {
+        "payeeId": "ben-iga-o2",
+        "payeeNouveauNom": null,
+        "subcategoryId": "sc-epicerie-o2",
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": [],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "bénéficiaire par préfixe — le plus long gagne",
+      "entree": "e-o3",
+      "filtres": [],
+      "beneficiaires": ["ben-iga-o3", "ben-iga-valbrume-o3"],
+      "regles": [],
+      "existantes": [],
+      "attendu": {
+        "payeeId": "ben-iga-valbrume-o3",
+        "payeeNouveauNom": null,
+        "subcategoryId": "sc-epicerie-valbrume-o3",
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": [],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "une règle bat le défaut du bénéficiaire",
+      "entree": "e-o4",
+      "filtres": [],
+      "beneficiaires": ["ben-pharmacie-o4"],
+      "regles": ["r-jeancoutu-o4"],
+      "existantes": [],
+      "attendu": {
+        "payeeId": "ben-pharmacie-o4",
+        "payeeNouveauNom": null,
+        "subcategoryId": "sc-jeancoutu-o4",
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": "r-jeancoutu-o4",
+        "reglesEnConflit": [],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "categorieVerrouillee bat la règle",
+      "entree": "e-o5",
+      "filtres": [],
+      "beneficiaires": ["ben-netflix-o5"],
+      "regles": ["r-netflix-o5"],
+      "existantes": [],
+      "attendu": {
+        "payeeId": "ben-netflix-o5",
+        "payeeNouveauNom": null,
+        "subcategoryId": "sc-locked-o5",
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": [],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "autoCategorisation à false — aucun défaut posé",
+      "entree": "e-o6",
+      "filtres": [],
+      "beneficiaires": ["ben-spotify-o6"],
+      "regles": [],
+      "existantes": [],
+      "attendu": {
+        "payeeId": "ben-spotify-o6",
+        "payeeNouveauNom": null,
+        "subcategoryId": null,
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": [],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "conflit à priorité égale — rien d'appliqué, deux règles remontées",
+      "entree": "e-o7",
+      "filtres": [],
+      "beneficiaires": [],
+      "regles": ["r-resto-a-o7", "r-resto-b-o7"],
+      "existantes": [],
+      "attendu": {
+        "payeeId": null,
+        "payeeNouveauNom": null,
+        "subcategoryId": null,
+        "tagIds": [],
+        "note": null,
+        "aRevoir": true,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": ["r-resto-a-o7", "r-resto-b-o7"],
+        "filtreId": null,
+        "statutDoublon": "AUCUN",
+        "action": "IMPORTER",
+        "section": "A_IMPORTER"
+      }
+    },
+    {
+      "nom": "filtre + quasi-doublon — les deux faits coexistent",
+      "entree": "e-o8",
+      "filtres": ["f-maxi-o8"],
+      "beneficiaires": [],
+      "regles": [],
+      "existantes": ["tx-o8"],
+      "attendu": {
+        "payeeId": null,
+        "payeeNouveauNom": null,
+        "subcategoryId": null,
+        "tagIds": [],
+        "note": null,
+        "aRevoir": false,
+        "exclureDuBudget": false,
+        "exclureDesRapports": false,
+        "regleAppliqueeId": null,
+        "reglesEnConflit": [],
+        "filtreId": "f-maxi-o8",
+        "statutDoublon": "QUASI_DOUBLON",
+        "action": "IGNORER",
+        "section": "FILTREES"
+      }
+    }
+  ]
+}

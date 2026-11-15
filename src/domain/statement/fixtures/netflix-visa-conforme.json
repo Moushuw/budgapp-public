@@ -1,0 +1,19 @@
+{
+  "profil": "desjardins-accesd",
+  "annee": 2026,
+  "reconnues": [
+    { "numeroLigne": 3, "date": "2026-10-12", "typeOperation": null, "description": "NETFLIX.COM", "montantCents": -1799 }
+  ],
+  "rejetees": [
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" }
+  ],
+  "controleTotal": null
+}

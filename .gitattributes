@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# Extraits au format AccèsD (docs/lot-m1.md §5.6), anonymisés : préservés octet pour octet,
+# fins de ligne CRLF comprises — ce sont elles que le parser traite.
+src/domain/statement/fixtures/cheque-desjardins.txt -text
+src/domain/statement/fixtures/visa-desjardins.txt -text
+src/domain/statement/fixtures/visa-desjardins-2026-09.txt -text

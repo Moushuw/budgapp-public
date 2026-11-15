@@ -1,0 +1,4 @@
+Date	Description	Remises	Montant	Lien
+15 MAI15 Mai	Librairie Imaginaire	1 %	23,45 $
+15 Mai Librairie Imaginaire 23,45 $
+14 MAI14 Mai	Paiement		+487,13 $	14 Mai Paiement. +487,13 $

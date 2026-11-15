@@ -1,0 +1,23 @@
+{
+  "profil": "desjardins-accesd",
+  "annee": 2024,
+  "reconnues": [
+    { "numeroLigne": 3, "date": "2024-05-15", "typeOperation": null, "description": "Librairie Imaginaire", "montantCents": -2345 },
+    { "numeroLigne": 4, "date": "2024-05-14", "typeOperation": null, "description": "Paiement.", "montantCents": 48713 }
+  ],
+  "rejetees": [
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 4, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 4, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 4, "raison": "AUCUNE_DATE" }
+  ],
+  "controleTotal": null
+}

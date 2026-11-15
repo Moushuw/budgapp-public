@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: budgapp
+          POSTGRES_PASSWORD: budgapp_dev
+          POSTGRES_DB: budgapp_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U budgapp -d budgapp_dev"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://budgapp:budgapp_dev@localhost:5432/budgapp_dev?schema=public
+      TZ: America/Toronto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Le lockfile est écrit par npm 11 ; npm 10 (livré avec Node 22) refuse une dépendance pair
+      # optionnelle (magicast) que npm 11 accepte.
+      - run: npm install -g npm@11
+      - run: npm ci
+
+      # pg_trgm et unaccent sont créés par la migration 20260914213000_pg_trgm_unaccent
+      # (l'utilisateur du service est superutilisateur).
+      - run: npx prisma migrate deploy
+      - run: npx prisma generate
+      - run: npm run seed
+
+      # typegen, lint, tsc --noEmit, vitest run (schéma `test`, préparé par le globalSetup), next build
+      - run: npm run check

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Active avec : git config core.hooksPath .githooks
+npm run check

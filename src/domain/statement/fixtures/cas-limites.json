@@ -1,0 +1,27 @@
+{
+  "profil": "desjardins-accesd",
+  "annee": 2026,
+  "reconnues": [],
+  "rejetees": [
+    { "numeroLigne": 1, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 2, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 3, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 5, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 5, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 6, "raison": "MOIS_INCONNU" },
+    { "numeroLigne": 8, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 9, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 10, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 12, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 12, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 13, "raison": "MONTANT_ILLISIBLE" },
+    { "numeroLigne": 15, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 16, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 17, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 19, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 19, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 20, "raison": "AUCUN_MONTANT" },
+    { "numeroLigne": 22, "raison": "AUCUNE_DATE" },
+    { "numeroLigne": 22, "raison": "AUCUNE_DATE" }
+  ]
+}
